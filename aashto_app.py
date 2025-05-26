@@ -113,6 +113,10 @@ if submitted:
         'Pass 0.075mm': [pass_200]
     })
     st.download_button("Download as CSV", export_df.to_csv(index=False), "classification_results.csv", "text/csv")
+    
+    # --- Footer ---
+st.markdown("---")
+st.caption("© 2025 AASHTO Classifying_tool | Built by Automation_hub")
 
 
 
