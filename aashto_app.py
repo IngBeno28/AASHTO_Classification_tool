@@ -125,27 +125,27 @@ def create_pdf(content):
     pdf = FPDF()
     pdf.add_page()
     
-    # Define the font path 
-    font_path = Path("dejavu-fonts-ttf-2.37/fonts/DejaVuMathTeXGyre.ttf")
-
-    # Debug: Print the path to verify
-    print(f"Font path: {font_path}")
-
-    if not font_path.exists():
-        raise FileNotFoundError(f"Font file missing at: {font_path}")
+        try:
+        # Try to use Unicode font if available
+        font_path = "fonts/DejaVuSans.ttf"
+        if Path(font_path).exists():
+            pdf.add_font("DejaVu", "", font_path, uni=True)
+            pdf.set_font("DejaVu", size=12)
+        else:
+            # Fallback to standard font
+            pdf.set_font("Arial", size=12)
+            # Strip non-ASCII characters
+            content = content.encode('ascii', errors='ignore').decode('ascii')
+        except:
+        pdf.set_font("Arial", size=12)
+        content = content.encode('ascii', errors='ignore').decode('ascii')
     
-    # Add the font to FPDF
-    pdf.add_font("DejaVu", "", str(font_path), uni=True)
-    pdf.set_font("DejaVu", size=12)
-    
-    # Add content
-    for line in content.split('\n'):
+        for line in content.split('\n'):
         pdf.cell(200, 10, txt=line, ln=True, align='L')
-    
-    # Generate PDF bytes
-    buffer = BytesIO()
-    pdf.output(buffer)
-    return buffer.getvalue()
+        
+        buffer = BytesIO()
+        pdf.output(buffer)
+        return buffer.getvalue()
 
 
 # --- Streamlit UI ---
