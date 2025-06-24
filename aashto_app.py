@@ -132,7 +132,7 @@ def create_pdf(content):
     print(f"Font path: {font_path}")
 
     if not font_path.exists():
-    raise FileNotFoundError(f"Font file missing at: {font_path}")
+        raise FileNotFoundError(f"Font file missing at: {font_path}")
     
     # Add the font to FPDF
     pdf.add_font("DejaVu", "", str(font_path), uni=True)
