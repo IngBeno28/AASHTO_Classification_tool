@@ -220,7 +220,6 @@ if submitted:
     })
     
  with st.spinner("Preparing downloads..."):
-    # CSV download remains the same
     st.download_button(
         "Download as CSV", 
         export_df.to_csv(index=False), 
