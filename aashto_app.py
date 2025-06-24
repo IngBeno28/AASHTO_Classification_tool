@@ -219,25 +219,26 @@ if submitted:
         'AI Analysis': [ai_summary]
     })
     
-    with st.spinner("Preparing downloads..."):
+with st.spinner("Preparing downloads..."):
+    # CSV download remains the same
+    st.download_button(
+        "Download as CSV", 
+        export_df.to_csv(index=False), 
+        "classification_results.csv", 
+        "text/csv"
+    )
+    
+    # PDF download with existence check
+    pdf_bytes = create_pdf(ai_summary)
+    if pdf_bytes is not None:
         st.download_button(
-            "Download as CSV", 
-            export_df.to_csv(index=False), 
-            "classification_results.csv", 
-            "text/csv"
+            "Download Analysis as PDF", 
+            pdf_bytes, 
+            file_name="soil_analysis.pdf", 
+            mime="application/pdf"
         )
-        
-        # PDF download with existence check
-        pdf_bytes = create_pdf(ai_summary)
-        if pdf_bytes is not None:
-            st.download_button(
-                "Download Analysis as PDF", 
-                pdf_bytes, 
-                file_name="soil_analysis.pdf", 
-                mime="application/pdf"
-            )
-        else:
-            st.warning("PDF download is not available due to generation issues")
+    else:
+        st.warning("PDF download is not available due to generation issues")
 
 # --- Footer ---
 st.markdown("---")
