@@ -127,15 +127,15 @@ def create_pdf(content):
     
     try:
         # Try to use Unicode font if available
-        font_path = "fonts/DejaVuSans.ttf"
+        font_path = "dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf"
         
         # Check if font exists in local fonts directory
         if Path(font_path).exists():
             pdf.add_font("DejaVu", "", font_path, uni=True)
             pdf.set_font("DejaVu", size=12)
         # Check system fonts as fallback
-        elif Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf").exists():
-            pdf.add_font("DejaVu", "", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", uni=True)
+        elif Path("dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf").exists():
+            pdf.add_font("DejaVu", "", "dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf", uni=True)
             pdf.set_font("DejaVu", size=12)
         else:
             # Final fallback to standard font
