@@ -5,6 +5,7 @@ import re
 from fpdf import FPDF
 from io import BytesIO
 from typing import List
+from pathlib import Path
 
 # --- Classification Logic ---
 granular_materials = ["A-1-a", "A-1-b", "A-3", "A-2-4", "A-2-5", "A-2-6", "A-2-7"]
