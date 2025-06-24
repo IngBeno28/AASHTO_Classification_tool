@@ -116,11 +116,11 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="AASHTO Soil Classifier", layout="centered")
-st.title("AASHTO Soil Classification Tool")
-st.caption("Powered by Automation_hub")
+st.title("🏗️ AASHTO Soil Classification Tool")
+st.caption("⚡ Powered by Automation_hub")
 
 with st.form("soil_form"):
-    st.subheader("Atterberg Limits")
+    st.subheader("📊 Atterberg Limits")
     LL = st.number_input("Liquid Limit (LL)", min_value=0)
     PL = st.number_input("Plastic Limit (PL)", min_value=0)
     is_np = st.checkbox("Check if Non-Plastic (N.P)")
@@ -128,36 +128,36 @@ with st.form("soil_form"):
     if not is_np:
         st.write(f"Plasticity Index (PI) = **{PI}**")
 
-    st.subheader("Sieve Analysis (%) Passing")
+    st.subheader("🔍 Sieve Analysis (%) Passing")
     pass_10 = st.number_input("Sieve No. 10 (2.0 mm)", min_value=0, max_value=100)
     pass_40 = st.number_input("Sieve No. 40 (0.425 mm)", min_value=0, max_value=100)
     pass_200 = st.number_input("Sieve No. 200 (0.075 mm)", min_value=0, max_value=100)
 
-    red_flags = st.multiselect("Select any red flags identified in the soil:",
+    red_flags = st.multiselect("⚠️ Select any red flags identified in the soil:",
                              ["stone", "organic_matter", "mottled_color"])
 
-    submitted = st.form_submit_button("Classify Soil")
+    submitted = st.form_submit_button("🚀 Classify Soil")
 
 if submitted:
     classification = classify_soil(LL, PL, PI, pass_10, pass_40, pass_200, is_np)
     mat_type = classify_material_type(pass_200)
     constituents = identify_constituents_from_classification(classification)
 
-    st.success(f"AASHTO Classification: **{classification}**")
-    st.info(f"Material Type: **{mat_type}**")
-    st.write(f"Significant Constituent Materials: **{constituents}**")
+    st.success(f"🎯 AASHTO Classification: **{classification}**")
+    st.info(f"🧱 Material Type: **{mat_type}**")
+    st.write(f"⚗️ Significant Constituent Materials: **{constituents}**")
 
     if classification in granular_materials:
-        st.success("General Subgrade Rating: **Excellent to Good**")
+        st.success("✅ General Subgrade Rating: **Excellent to Good**")
     elif classification in silty_clay_materials:
-        st.warning("General Subgrade Rating: **Fair to Poor**")
+        st.warning("⚠️ General Subgrade Rating: **Fair to Poor**")
 
-    st.subheader("Soil Analysis")
+    st.subheader("🤖 AI Analysis")
     ai_summary = generate_soil_analysis(classification, PI, LL, pass_200, pass_40, pass_10, red_flags)
     st.markdown(ai_summary)
 
     # Bar chart of sieve results
-    st.subheader("Sieve Analysis Chart")
+    st.subheader("📈 Sieve Analysis Chart")
     sieve_data = pd.DataFrame({
         'Sieve Size (mm)': ['2.0 (No.10)', '0.425 (No.40)', '0.075 (No.200)'],
         '% Passing': [pass_10, pass_40, pass_200]
@@ -170,7 +170,7 @@ if submitted:
     st.pyplot(fig)
 
     # Export results
-    st.subheader("Download Results")
+    st.subheader("📥 Download Results")
     export_df = pd.DataFrame({
         'Classification': [classification],
         'Material Type': [mat_type],
@@ -185,14 +185,14 @@ if submitted:
     })
     
     st.download_button(
-        "Download as CSV", 
+        "📊 Download as CSV", 
         export_df.to_csv(index=False), 
         "classification_results.csv", 
         "text/csv"
     )
     
     st.download_button(
-        "Download Analysis as Text", 
+        "📄 Download Analysis as Text", 
         ai_summary, 
         file_name="soil_analysis.txt", 
         mime="text/plain"
@@ -200,4 +200,4 @@ if submitted:
 
 # --- Footer ---
 st.markdown("---")
-st.caption("© 2025 AASHTO Classifying Tool | Built by Automation_hub")
+st.caption("© 2025 AASHTO Classifying Tool | Built by Automation_hub 🚀")
