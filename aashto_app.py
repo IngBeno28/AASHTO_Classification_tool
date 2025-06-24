@@ -117,14 +117,25 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
 
     return explanation.strip()
 
+from fpdf import FPDF
+from pathlib import Path
+
 def create_pdf(content):
     pdf = FPDF()
     pdf.add_page()
-    # Add a Unicode-compatible font (e.g., DejaVuSans.ttf)
-    pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)  # Path to .ttf file
-    pdf.set_font("DejaVu", size=12)  # Use the font
+    
+    # Define the font path 
+    font_path = Path(__file__).parent / "fonts" / "DejaVuSans.ttf"
+    
+    # Add the font to FPDF
+    pdf.add_font("DejaVu", "", str(font_path), uni=True)
+    pdf.set_font("DejaVu", size=12)
+    
+    # Add content
     for line in content.split('\n'):
         pdf.cell(200, 10, txt=line, ln=True, align='L')
+    
+    # Generate PDF bytes
     buffer = BytesIO()
     pdf.output(buffer)
     return buffer.getvalue()
