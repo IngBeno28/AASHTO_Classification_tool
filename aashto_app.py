@@ -117,18 +117,14 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
 
     return explanation.strip()
 
-
-
-def strip_emojis(text):
-    return re.sub(r'[^\x00-\x7F]+', '', text)
-
 def create_pdf(content):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    safe_content = strip_emojis(content)
-    for line in safe_content.split('\n'):
-        pdf.cell(200, 10, txt=line, ln=True, align='L')
+    for line in content.split('\n'):
+        # Replace or remove non-latin1 characters (e.g., emojis)
+        cleaned_line = line.encode('latin-1', errors='ignore').decode('latin-1')
+        pdf.cell(200, 10, txt=cleaned_line, ln=True, align='L')
     buffer = BytesIO()
     pdf.output(buffer)
     return buffer.getvalue()
