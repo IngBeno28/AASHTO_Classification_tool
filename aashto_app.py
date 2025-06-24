@@ -119,34 +119,63 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
 
 def create_pdf(content):
     try:
-        # Initialize PDF
+        from fpdf import FPDF
+        
+        # Initialize PDF with basic settings
         pdf = FPDF()
         pdf.add_page()
         
-        # Use only built-in fonts
-        pdf.set_font("Arial", size=12)
+        # Use Helvetica (built-in PostScript font) instead of Arial
+        pdf.set_font("Helvetica", size=10)
         
-        # Clean content aggressively
-        cleaned_content = re.sub(r'[^\x00-\x7F]+', '', str(content))  # Ensure content is string
-        cleaned_content = cleaned_content.replace('*', '').replace('_', '')  # Remove markdown
+        # Clean content more thoroughly
+        if content is None:
+            content = "No content available"
         
-        # Add content with line handling
-        for line in cleaned_content.split('\n'):
-            line = line.strip():
+        cleaned_content = str(content)
+        # Remove problematic characters and markdown
+        cleaned_content = re.sub(r'[^\x00-\x7F]+', ' ', cleaned_content)
+        cleaned_content = cleaned_content.replace('*', '').replace('_', '').replace('#', '')
+        
+        # Split into lines and add to PDF
+        lines = cleaned_content.split('\n')
+        for line in lines:
+            line = line.strip()
             if line:  # Only process non-empty lines
-                try:
-                    pdf.cell(200, 10, txt=line, ln=True)
-                except:
-                    # If line causes error, skip it
-                    continue
+                # Handle long lines by wrapping them
+                if len(line) > 80:
+                    words = line.split(' ')
+                    current_line = ""
+                    for word in words:
+                        if len(current_line + word) < 80:
+                            current_line += word + " "
+                        else:
+                            if current_line:
+                                try:
+                                    pdf.cell(0, 8, txt=current_line.strip(), ln=True)
+                                except:
+                                    pass
+                            current_line = word + " "
+                    if current_line:
+                        try:
+                            pdf.cell(0, 8, txt=current_line.strip(), ln=True)
+                        except:
+                            pass
+                else:
+                    try:
+                        pdf.cell(0, 8, txt=line, ln=True)
+                    except:
+                        pass
         
         # Generate PDF bytes
-        buffer = BytesIO()
-        pdf.output(buffer)
-        return buffer.getvalue()
-    
+        pdf_output = pdf.output(dest='S').encode('latin1')
+        return pdf_output
+        
+    except ImportError:
+        st.error("PDF generation library not available")
+        return None
     except Exception as e:
-        st.error(f"Failed to generate PDF: {str(e)}")
+        st.error(f"PDF generation failed: {str(e)}")
         return None
 
 # --- Streamlit UI ---
@@ -219,8 +248,7 @@ if submitted:
         'AI Analysis': [ai_summary]
     })
     
-with st.spinner("Preparing downloads..."):
-    # CSV download remains the same
+    # CSV download only for now to test
     st.download_button(
         "Download as CSV", 
         export_df.to_csv(index=False), 
@@ -228,17 +256,13 @@ with st.spinner("Preparing downloads..."):
         "text/csv"
     )
     
-    # PDF download with existence check
-    pdf_bytes = create_pdf(ai_summary)
-    if pdf_bytes is not None:
-        st.download_button(
-            "Download Analysis as PDF", 
-            pdf_bytes, 
-            file_name="soil_analysis.pdf", 
-            mime="application/pdf"
-        )
-    else:
-        st.warning("PDF download is not available due to generation issues")
+    # Text download as alternative to PDF
+    st.download_button(
+        "Download Analysis as Text", 
+        ai_summary, 
+        file_name="soil_analysis.txt", 
+        mime="text/plain"
+    )
 
 # --- Footer ---
 st.markdown("---")
