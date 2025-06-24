@@ -126,7 +126,7 @@ def create_pdf(content):
     pdf.add_page()
     
     # Define the font path 
-    font_path = Path("dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf")
+    font_path = Path("dejavu-fonts-ttf-2.37/fonts/DejaVuMathTeXGyre.ttf")
 
     # Debug: Print the path to verify
     print(f"Font path: {font_path}")
