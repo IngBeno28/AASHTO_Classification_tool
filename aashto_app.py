@@ -72,7 +72,7 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
         "A-7-6": "Highly plastic clays. Very low strength, severe expansion risk."
     }
 
-    explanation = f"🧾 **Soil Classification Analysis: {group}**\n\n"
+    explanation = f"**Soil Classification Analysis: {group}**\n\n"
 
     if group in description_map:
         explanation += f"{description_map[group]}\n\n"
@@ -104,7 +104,7 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
     explanation += f"- Passing #40: {passing_40}%, Passing #10: {passing_10}%\n"
 
     if flags:
-        explanation += "\n🚩 **Red Flags Detected:**\n"
+        explanation += "\n**Red Flags Detected:**\n"
         for flag in flags:
             if flag == "stone":
                 explanation += "- Presence of stone: May cause inconsistent compaction.\n"
@@ -118,23 +118,32 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
     return explanation.strip()
 
 def create_pdf(content):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    
-    # Remove emojis and non-ASCII characters
-    cleaned_content = re.sub(r'[^\x00-\x7F]+', '', content)
-    
-    for line in cleaned_content.split('\n'):
-        pdf.cell(200, 10, txt=line, ln=True, align='L')
-    
-    buffer = BytesIO()
-    pdf.output(buffer)
-    return buffer.getvalue()
+    """Safe PDF creation with error handling and ASCII-only content"""
+    try:
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)  # Built-in font that doesn't require external files
+        
+        # Remove all non-ASCII characters and emojis
+        cleaned_content = re.sub(r'[^\x00-\x7F]+', '', content)
+        cleaned_content = cleaned_content.replace('**', '')  # Remove markdown bold
+        
+        # Split into lines and add to PDF
+        for line in cleaned_content.split('\n'):
+            if line.strip():  # Only add non-empty lines
+                pdf.cell(200, 10, txt=line, ln=True)
+        
+        buffer = BytesIO()
+        pdf.output(buffer)
+        return buffer.getvalue()
+    except Exception as e:
+        st.error(f"PDF generation failed: {str(e)}")
+        return None
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="AASHTO Soil Classifier", layout="centered")
-st.title("🧪 AASHTO Soil Classification Tool \n Powered by: Automation_hub")
+st.title("AASHTO Soil Classification Tool")
+st.caption("Powered by Automation_hub")
 
 with st.form("soil_form"):
     st.subheader("Atterberg Limits")
@@ -150,7 +159,7 @@ with st.form("soil_form"):
     pass_40 = st.number_input("Sieve No. 40 (0.425 mm)", min_value=0, max_value=100)
     pass_200 = st.number_input("Sieve No. 200 (0.075 mm)", min_value=0, max_value=100)
 
-    red_flags = st.multiselect("🚩 Select any red flags identified in the soil:",
+    red_flags = st.multiselect("Select any red flags identified in the soil:",
                              ["stone", "organic_matter", "mottled_color"])
 
     submitted = st.form_submit_button("Classify Soil")
@@ -160,22 +169,21 @@ if submitted:
     mat_type = classify_material_type(pass_200)
     constituents = identify_constituents_from_classification(classification)
 
-    st.success(f"🧾 AASHTO Classification: **{classification}**")
-    st.info(f"🧱 Material Type: **{mat_type}**")
-    st.write(f"🔬 Significant Constituent Materials: **{constituents}**")
+    st.success(f"AASHTO Classification: **{classification}**")
+    st.info(f"Material Type: **{mat_type}**")
+    st.write(f"Significant Constituent Materials: **{constituents}**")
 
     if classification in granular_materials:
-        st.success("🟢 General Subgrade Rating: **Excellent to Good**")
+        st.success("General Subgrade Rating: **Excellent to Good**")
     elif classification in silty_clay_materials:
-        st.warning("🟠 General Subgrade Rating: **Fair to Poor**")
+        st.warning("General Subgrade Rating: **Fair to Poor**")
 
-    # 📋 Add rule-based AI soil analysis
-    st.subheader("🤖 AI-Based Soil Analysis")
+    st.subheader("Soil Analysis")
     ai_summary = generate_soil_analysis(classification, PI, LL, pass_200, pass_40, pass_10, red_flags)
     st.markdown(ai_summary)
 
     # Bar chart of sieve results
-    st.subheader("📊 Sieve Analysis Chart")
+    st.subheader("Sieve Analysis Chart")
     sieve_data = pd.DataFrame({
         'Sieve Size (mm)': ['2.0 (No.10)', '0.425 (No.40)', '0.075 (No.200)'],
         '% Passing': [pass_10, pass_40, pass_200]
@@ -188,7 +196,7 @@ if submitted:
     st.pyplot(fig)
 
     # Export results
-    st.subheader("📥 Download Results")
+    st.subheader("Download Results")
     export_df = pd.DataFrame({
         'Classification': [classification],
         'Material Type': [mat_type],
@@ -211,13 +219,14 @@ if submitted:
         )
         
         pdf_bytes = create_pdf(ai_summary)
-        st.download_button(
-            "Download AI Analysis as PDF", 
-            pdf_bytes, 
-            file_name="soil_analysis.pdf", 
-            mime="application/pdf"
-        )
+        if pdf_bytes:
+            st.download_button(
+                "Download Analysis as PDF", 
+                pdf_bytes, 
+                file_name="soil_analysis.pdf", 
+                mime="application/pdf"
+            )
 
 # --- Footer ---
 st.markdown("---")
-st.caption("© 2025 AASHTO Classifying_tool | Built by Automation_hub")
+st.caption("© 2025 AASHTO Classifying Tool | Built by Automation_hub")
