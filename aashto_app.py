@@ -135,8 +135,8 @@ def create_pdf(content):
             pdf.set_font("DejaVu", size=12)
         # Check system fonts as fallback
         elif Path("dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf").exists():
-            pdf.add_font("DejaVu", "", "dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf", uni=True)
-            pdf.set_font("DejaVu", size=12)
+            pdf.add_font("DejaVuSans.ttf", "", "dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf", uni=True)
+            pdf.set_font("DejaVuSans.ttf", size=12)
         else:
             # Final fallback to standard font
             pdf.set_font("Arial", size=12)
