@@ -132,7 +132,7 @@ def create_pdf(content):
         
         # Add content with line handling
         for line in cleaned_content.split('\n'):
-            line = line.strip()
+            line = line.strip():
             if line:  # Only process non-empty lines
                 try:
                     pdf.cell(200, 10, txt=line, ln=True)
@@ -218,7 +218,6 @@ if submitted:
         'Pass 0.075mm': [pass_200],
         'AI Analysis': [ai_summary]
     })
-    
     
     with st.spinner("Preparing downloads..."):
         st.download_button(
