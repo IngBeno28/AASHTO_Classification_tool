@@ -125,7 +125,7 @@ def create_pdf(content):
     pdf.add_page()
     
     # Define the font path 
-    font_path = "dejavu-fonts-ttf-2.37"
+    font_path = "dejavu-fonts-ttf-2.37/ttf"
     if not font_path.exists():
     raise FileNotFoundError(f"Font file not found at: {font_path}")
     
