@@ -126,9 +126,13 @@ def create_pdf(content):
     pdf.add_page()
     
     # Define the font path 
-    font_path = "dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf"
+    font_path = Path("dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf")
+
+    # Debug: Print the path to verify
+    print(f"Font path: {font_path}")
+
     if not font_path.exists():
-    raise FileNotFoundError(f"Font file not found at: {font_path}")
+    raise FileNotFoundError(f"Font file missing at: {font_path}")
     
     # Add the font to FPDF
     pdf.add_font("DejaVu", "", str(font_path), uni=True)
