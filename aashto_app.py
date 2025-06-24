@@ -127,7 +127,7 @@ def create_pdf(content):
     
         try:
         # Try to use Unicode font if available
-        font_path = "fonts/DejaVuSans.ttf"
+        font_path = "dejavu-fonts-ttf-2.37/fonts/DejaVuSans.ttf"
         if Path(font_path).exists():
             pdf.add_font("DejaVu", "", font_path, uni=True)
             pdf.set_font("DejaVu", size=12)
