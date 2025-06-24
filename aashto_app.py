@@ -118,26 +118,35 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
     return explanation.strip()
 
 def create_pdf(content):
-    """Safe PDF creation with error handling and ASCII-only content"""
     try:
+        # Initialize PDF
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", size=12)  # Built-in font that doesn't require external files
         
-        # Remove all non-ASCII characters and emojis
-        cleaned_content = re.sub(r'[^\x00-\x7F]+', '', content)
-        cleaned_content = cleaned_content.replace('**', '')  # Remove markdown bold
+        # Use only built-in fonts
+        pdf.set_font("Arial", size=12)
         
-        # Split into lines and add to PDF
+        # Clean content aggressively
+        cleaned_content = re.sub(r'[^\x00-\x7F]+', '', str(content))  # Ensure content is string
+        cleaned_content = cleaned_content.replace('*', '').replace('_', '')  # Remove markdown
+        
+        # Add content with line handling
         for line in cleaned_content.split('\n'):
-            if line.strip():  # Only add non-empty lines
-                pdf.cell(200, 10, txt=line, ln=True)
+            line = line.strip()
+            if line:  # Only process non-empty lines
+                try:
+                    pdf.cell(200, 10, txt=line, ln=True)
+                except:
+                    # If line causes error, skip it
+                    continue
         
+        # Generate PDF bytes
         buffer = BytesIO()
         pdf.output(buffer)
         return buffer.getvalue()
+    
     except Exception as e:
-        st.error(f"PDF generation failed: {str(e)}")
+        st.error(f"Failed to generate PDF: {str(e)}")
         return None
 
 # --- Streamlit UI ---
@@ -210,22 +219,26 @@ if submitted:
         'AI Analysis': [ai_summary]
     })
     
-    with st.spinner("Preparing downloads..."):
+ with st.spinner("Preparing downloads..."):
+    # CSV download remains the same
+    st.download_button(
+        "Download as CSV", 
+        export_df.to_csv(index=False), 
+        "classification_results.csv", 
+        "text/csv"
+    )
+    
+    # PDF download with existence check
+    pdf_bytes = create_pdf(ai_summary)
+    if pdf_bytes is not None:
         st.download_button(
-            "Download as CSV", 
-            export_df.to_csv(index=False), 
-            "classification_results.csv", 
-            "text/csv"
+            "Download Analysis as PDF", 
+            pdf_bytes, 
+            file_name="soil_analysis.pdf", 
+            mime="application/pdf"
         )
-        
-        pdf_bytes = create_pdf(ai_summary)
-        if pdf_bytes:
-            st.download_button(
-                "Download Analysis as PDF", 
-                pdf_bytes, 
-                file_name="soil_analysis.pdf", 
-                mime="application/pdf"
-            )
+    else:
+        st.warning("PDF download is not available due to generation issues")
 
 # --- Footer ---
 st.markdown("---")
