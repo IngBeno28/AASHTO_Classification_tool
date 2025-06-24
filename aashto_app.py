@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import re
 from fpdf import FPDF
 from io import BytesIO
 from typing import List
@@ -116,15 +117,22 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
 
     return explanation.strip()
 
+
+
+def strip_emojis(text):
+    return re.sub(r'[^\x00-\x7F]+', '', text)
+
 def create_pdf(content):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    for line in content.split('\n'):
+    safe_content = strip_emojis(content)
+    for line in safe_content.split('\n'):
         pdf.cell(200, 10, txt=line, ln=True, align='L')
     buffer = BytesIO()
     pdf.output(buffer)
     return buffer.getvalue()
+
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="AASHTO Soil Classifier", layout="centered")
