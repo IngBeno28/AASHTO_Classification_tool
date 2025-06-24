@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import re
-from fpdf import FPDF
-from io import BytesIO
 from typing import List
 
 # --- Classification Logic ---
@@ -117,67 +114,6 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
 
     return explanation.strip()
 
-def create_pdf(content):
-    try:
-        from fpdf import FPDF
-        
-        # Initialize PDF with basic settings
-        pdf = FPDF()
-        pdf.add_page()
-        
-        # Use Helvetica (built-in PostScript font) instead of Arial
-        pdf.set_font("Helvetica", size=10)
-        
-        # Clean content more thoroughly
-        if content is None:
-            content = "No content available"
-        
-        cleaned_content = str(content)
-        # Remove problematic characters and markdown
-        cleaned_content = re.sub(r'[^\x00-\x7F]+', ' ', cleaned_content)
-        cleaned_content = cleaned_content.replace('*', '').replace('_', '').replace('#', '')
-        
-        # Split into lines and add to PDF
-        lines = cleaned_content.split('\n')
-        for line in lines:
-            line = line.strip()
-            if line:  # Only process non-empty lines
-                # Handle long lines by wrapping them
-                if len(line) > 80:
-                    words = line.split(' ')
-                    current_line = ""
-                    for word in words:
-                        if len(current_line + word) < 80:
-                            current_line += word + " "
-                        else:
-                            if current_line:
-                                try:
-                                    pdf.cell(0, 8, txt=current_line.strip(), ln=True)
-                                except:
-                                    pass
-                            current_line = word + " "
-                    if current_line:
-                        try:
-                            pdf.cell(0, 8, txt=current_line.strip(), ln=True)
-                        except:
-                            pass
-                else:
-                    try:
-                        pdf.cell(0, 8, txt=line, ln=True)
-                    except:
-                        pass
-        
-        # Generate PDF bytes
-        pdf_output = pdf.output(dest='S').encode('latin1')
-        return pdf_output
-        
-    except ImportError:
-        st.error("PDF generation library not available")
-        return None
-    except Exception as e:
-        st.error(f"PDF generation failed: {str(e)}")
-        return None
-
 # --- Streamlit UI ---
 st.set_page_config(page_title="AASHTO Soil Classifier", layout="centered")
 st.title("AASHTO Soil Classification Tool")
@@ -248,7 +184,6 @@ if submitted:
         'AI Analysis': [ai_summary]
     })
     
-    # CSV download only for now to test
     st.download_button(
         "Download as CSV", 
         export_df.to_csv(index=False), 
@@ -256,7 +191,6 @@ if submitted:
         "text/csv"
     )
     
-    # Text download as alternative to PDF
     st.download_button(
         "Download Analysis as Text", 
         ai_summary, 
