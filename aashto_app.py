@@ -117,7 +117,7 @@ def generate_soil_analysis(group: str, PI: float, LL: float, passing_200: float,
 # --- Streamlit UI ---
 st.set_page_config(page_title="AASHTO Soil Classifier", layout="centered")
 st.title("🏗️ AASHTO Soil Classification Tool")
-st.caption("⚡ Powered by Automation_hub")
+st.caption("⚡ Powered by Automation_hub Engineering Group Limited - AASHTO M 145 standard")
 
 with st.form("soil_form"):
     st.subheader("📊 Atterberg Limits")
